@@ -244,10 +244,10 @@ function get_player_counts(squares){
 
   for (let i_iter = 0; i_iter < 8 ; i_iter++ ){
     for (let j_iter = 0;j_iter<8; j_iter++){
-      if (squares[i_iter][j_iter] !== null && squares[i_iter][j_iter] !== 'X' ){
+      if (squares[i_iter][j_iter] !== null && squares[i_iter][j_iter] !== 'O' ){
         x_count++;
       }
-      else if (squares[i_iter][j_iter] !== null && squares[i_iter][j_iter] !== 'O' ){
+      else if (squares[i_iter][j_iter] !== null && squares[i_iter][j_iter] !== 'X' ){
         o_count++;
       }
     }
@@ -257,22 +257,6 @@ function get_player_counts(squares){
 
 function calculateWinner(x_count, o_count, squares) {
   // Winner can be calculated with the one having more number of places
-  // const lines = [
-  //   [0, 1, 2],
-  //   [3, 4, 5],
-  //   [6, 7, 8],
-  //   [0, 3, 6],
-  //   [1, 4, 7],
-  //   [2, 5, 8],
-  //   [0, 4, 8],
-  //   [2, 4, 6],
-  // ];
-  // for (let i = 0; i < lines.length; i++) {
-  //   const [a, b, c] = lines[i];
-  //   if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-  //     return squares[a];
-  //   }
-  // }
   
   // TODO::Consider All possible values.
 
