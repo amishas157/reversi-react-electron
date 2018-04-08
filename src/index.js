@@ -18,7 +18,7 @@ class Board extends React.Component {
       xIsNext: true
     };
 
-    //initial state 
+    //initial state
     this.state.squares[3][3] = 'O';
     this.state.squares[3][4] = 'X';
     this.state.squares[4][3] = 'X';
@@ -32,26 +32,30 @@ class Board extends React.Component {
     }
     const player = this.state.xIsNext ? 'X' : 'O';
     const moves = possibleMoves(squares, player, i, j)
-
     console.log(moves);
-
-    const reverseElements = moves.reduce((move) => {
-      return move.length !== 0 ? move : false;
+    console.log("sujith");
+    
+    const reverseElements = [];
+    // TODO:: push all moves to reverseElements    
+    moves.forEach(move => {
+      if (move.length!==0){
+        move.forEach(add_move=>{
+          reverseElements.push(add_move)
+        });
+        // reverseElements.push(move[0]);
+      }
     });
 
-    console.log(reverseElements);
-
-    if (!reverseElements) {
+    if (reverseElements.length === 0) {
       return;
     }
 
     reverseElements.forEach((element) => {
-      squares[element[0]][element[1]] = player;  
+      squares[element[0]][element[1]] = player;
       console.log(element);
     })
 
     squares[i][j] = player;
-
     this.setState({
       squares: squares,
       xIsNext: !this.state.xIsNext,
@@ -68,17 +72,22 @@ class Board extends React.Component {
   }
 
   render() {
-    const winner = calculateWinner(this.state.squares);
+    let [x_count,y_count] = get_player_counts(this.state.squares);
+    const winner = calculateWinner(x_count, y_count, this.state.squares);
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
     } else {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
-
+    let player1_count = "Player X : " + x_count;
+    let player2_count = "Player O : " + y_count;
     return (
       <div>
         <div className="status">{status}</div>
+        <div className="p1count">{player1_count}</div>
+        <div className="p2count">{player2_count}</div>
+        
         <div className="board-row">
           {this.renderSquare(0, 0)}
           {this.renderSquare(0, 1)}
@@ -191,9 +200,15 @@ function possibleMoves(squares, player, i, j) {
 function getPossibleMovesInDirection(squares, direction, i, j, player) {
   const oppPlayer = player === 'X' ? 'O' : 'X';
   const directionMoves = [];
+  if (getDirectionIndex(direction, i, j) == null ){
+    return [];
+  }
   [i, j] = getDirectionIndex(direction, i, j);
   while (squares[i][j] === oppPlayer && i !== null && j !== null) {
     directionMoves.push([i,j]);
+    if (getDirectionIndex(direction, i, j) === null){
+      return [];
+    }
     [i, j] = getDirectionIndex(direction, i, j);
   }
   if (i && j && squares[i][j] === player) {
@@ -202,42 +217,55 @@ function getPossibleMovesInDirection(squares, direction, i, j, player) {
 }
 
 function getDirectionIndex(direction, i, j) {
-  if (direction === 'left') {
-    return i === 0 ? null : [i-1, j]
-  } else if (direction === 'right') {
-    return i === 7 ? null : [i+1, j]
-  } else if (direction === 'top') {
+   if (direction === 'left') {
     return j === 0 ? null : [i, j-1]
-  } else if (direction === 'down') {
+  } else if (direction === 'right') {
     return j === 7 ? null : [i, j+1]
+  } else if (direction === 'top') {
+    return i === 0 ? null : [i-1, j]
+  } else if (direction === 'down') {   
+    return i === 7 ? null : [i+1, j]
   } else if (direction === 'leftup') {
-    return (j === 0 && i === 0) ? null : [i-1, j-1]
+    return (j === 0 || i === 0) ? null : [i-1, j-1]
   } else if (direction === 'leftdown') {
-    return (j === 7 && i === 0) ? null : [i-1, j+1]
+    return (i === 7 || j === 0) ? null : [i+1, j-1]
   } else if (direction === 'rightup') {
-    return (j === 0 && i === 7) ? null : [i+1, j-1]
+    return (i === 0 || j === 7) ? null : [i-1, j+1]
   } else if (direction === 'rightdown') {
-    return (j === 7 && i === 7) ? null : [i+1, j+1]
+    return (j === 7 || i === 7) ? null : [i+1, j+1]
   } else {
     return null;
   }
 }
 
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+function get_player_counts(squares){
+  let x_count = 0;
+  let o_count = 0;
+
+  for (let i_iter = 0; i_iter < 8 ; i_iter++ ){
+    for (let j_iter = 0;j_iter<8; j_iter++){
+      if (squares[i_iter][j_iter] !== null && squares[i_iter][j_iter] !== 'O' ){
+        x_count++;
+      }
+      else if (squares[i_iter][j_iter] !== null && squares[i_iter][j_iter] !== 'X' ){
+        o_count++;
+      }
+    }
+  }
+  return [x_count,o_count];
+}
+
+function calculateWinner(x_count, o_count, squares) {
+  // Winner can be calculated with the one having more number of places
+  
+  // TODO::Consider All possible values.
+
+  // When All Blocks are filled. 
+  if (x_count + o_count === squares.length *squares.length){
+    if (x_count > o_count) {return 'Player X';}
+    else if (x_count < o_count){return 'Player O';}
+    else{
+      return 'Draw'
     }
   }
   return null;
